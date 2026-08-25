@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+data/*.csv
+data/*.db
+nosql/collections/*.json
+generated_reports/
+sample_reports/
+.streamlit/
+.DS_Store
