@@ -7,6 +7,15 @@ ROOT_DIR = os.path.dirname(APP_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+# Generate the dataset if this is a fresh checkout. Only source is tracked in
+# git, so a clone -- or a deploy built straight from the repo -- starts with no
+# CSVs, no SQLite file, and no NoSQL collections. This runs at import time, so
+# it happens once per process rather than on every Streamlit rerun, and it is a
+# no-op once the data is in place.
+from database.bootstrap import ensure_data  # noqa: E402
+
+ensure_data()
+
 BRAND_COLOR = "#7A2E8E"
 ACCENT_COLOR = "#F2A541"
 PAGE_ICON = "🚀"

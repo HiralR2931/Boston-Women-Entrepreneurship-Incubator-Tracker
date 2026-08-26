@@ -17,9 +17,15 @@ seeded for reproducibility.
 import random
 import csv
 import os
+import sys
 import datetime as dt
 
-from _namebank import (
+# Works both when run directly (`python database/seed_data.py`) and when
+# imported as `database.seed_data`, which is how the app bootstraps a fresh
+# checkout that has no dataset yet.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from _namebank import (  # noqa: E402
     FIRST_NAMES, LAST_NAMES, STARTUP_WORDS_1, STARTUP_WORDS_2, INDUSTRIES,
     STAGES, NEIGHBORHOODS, MENTOR_EXPERTISE, INVESTOR_TYPES, EVENT_TYPES, COMPANIES
 )
