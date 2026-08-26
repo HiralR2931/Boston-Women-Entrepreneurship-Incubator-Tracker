@@ -1,9 +1,15 @@
 # Boston Women Entrepreneurship Incubator Tracker
 
+**▶ Live demo: [boston-women-entrepreneurship-incubator-tracker.streamlit.app](https://boston-women-entrepreneurship-incubator-tracker.streamlit.app)**
+
 A live **Streamlit dashboard** for tracking startups, mentors, investors, and
 events across a women-focused startup incubator — backed by a pluggable data
 layer, with analytics for program staff and **on-demand exportable reports**
 (PDF + Excel).
+
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![Streamlit](https://img.shields.io/badge/streamlit-app-FF4B4B)
+![Tests](https://img.shields.io/badge/tests-32%20passing-brightgreen)
 
 ## Features
 
@@ -106,6 +112,20 @@ python reports/report_generator.py
 # writes sample_reports/incubator_board_report.pdf
 #        sample_reports/incubator_analytics_workbook.xlsx
 ```
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+The suite covers the analytics layer — health scores stay in range, funding
+trend totals reconcile against the underlying rounds, derived indices match
+their documented formulas, recommenders stay ordered and bounded — plus the two
+properties of the seed pipeline that are easy to break silently: the dataset is
+reproducible (`random.seed(42)`) and re-seeding is idempotent rather than
+additive.
 
 ## App pages
 

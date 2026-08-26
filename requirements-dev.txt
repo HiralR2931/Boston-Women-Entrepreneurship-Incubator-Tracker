@@ -1,0 +1,5 @@
+# Development/test dependencies. Kept separate from requirements.txt so the
+# deployed app doesn't install the test tooling.
+-r requirements.txt
+
+pytest>=8.0

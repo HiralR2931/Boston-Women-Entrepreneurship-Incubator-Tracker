@@ -24,6 +24,37 @@ from database.db_config import get_connection
 from nosql.nosql_store import get_store
 
 
+def _make_cache():
+    """
+    Return a caching decorator.
+
+    Under Streamlit, use st.cache_data: the whole script reruns on every widget
+    interaction, so without it each rerun re-opens SQLite and re-scans every
+    table. st.cache_data hands back a copy per call, so callers that mutate the
+    returned frame (event_roi parses dates in place, for example) stay safe.
+
+    This module is also imported by reports/report_generator.py as a plain CLI
+    script, where there is no Streamlit runtime -- fall back to a no-op there so
+    the analytics layer has no hard dependency on Streamlit.
+    """
+    try:
+        import streamlit as st
+
+        if st.runtime.exists():
+            return st.cache_data(ttl=600, show_spinner=False)
+    except Exception:
+        pass
+
+    def passthrough(fn):
+        return fn
+
+    return passthrough
+
+
+cache = _make_cache()
+
+
+@cache
 def _read(query, params=None):
     conn = get_connection()
     try:
@@ -72,6 +103,7 @@ def load_event_participation():
 # KPI summary (dashboard header cards)
 # ---------------------------------------------------------------------
 
+@cache
 def kpi_summary():
     startups = load_startups()
     funding = load_funding_rounds()
@@ -165,9 +197,10 @@ def funding_distribution_by_stage():
 
 
 # ---------------------------------------------------------------------
-# NEW: time-series funding trend
+# time-series funding trend
 # ---------------------------------------------------------------------
 
+@cache
 def funding_trend_over_time(resample_freq="QE", period_freq="Q"):
     """Total capital raised per period (default quarterly) across all startups."""
     fr = load_funding_rounds()
@@ -185,9 +218,10 @@ def funding_trend_over_time(resample_freq="QE", period_freq="Q"):
 
 
 # ---------------------------------------------------------------------
-# NEW: composite startup health score
+# composite startup health score
 # ---------------------------------------------------------------------
 
+@cache
 def startup_health_score():
     """
     Composite 0-100 score blending:
@@ -232,7 +266,7 @@ def startup_health_score():
 
 
 # ---------------------------------------------------------------------
-# NEW: mentor <-> startup matching recommendations
+# mentor <-> startup matching recommendations
 # ---------------------------------------------------------------------
 
 # Which mentor expertise areas best serve which startup stage
@@ -246,6 +280,7 @@ STAGE_TO_PRIORITY_EXPERTISE = {
 }
 
 
+@cache
 def mentor_matching_recommendations(startup_id, top_n=5):
     """
     Rule-based recommender: for a given startup, rank mentors by
@@ -292,9 +327,10 @@ def mentor_matching_recommendations(startup_id, top_n=5):
 
 
 # ---------------------------------------------------------------------
-# NEW: mentor load balance (over/under-utilized)
+# mentor load balance (over/under-utilized)
 # ---------------------------------------------------------------------
 
+@cache
 def mentor_load_balance():
     mentors = load_mentors()
     sessions = load_mentorship_sessions()
@@ -311,9 +347,10 @@ def mentor_load_balance():
 
 
 # ---------------------------------------------------------------------
-# NEW: investor portfolio diversity
+# investor portfolio diversity
 # ---------------------------------------------------------------------
 
+@cache
 def investor_portfolio_diversity():
     """
     For each investor: how many distinct industries/stages they've backed,
@@ -343,9 +380,10 @@ def investor_portfolio_diversity():
 
 
 # ---------------------------------------------------------------------
-# NEW: event ROI
+# event ROI
 # ---------------------------------------------------------------------
 
+@cache
 def event_roi():
     """
     Cost per attendee, and funding raised by startups within 60 days
